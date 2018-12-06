@@ -47,6 +47,9 @@ public class musicChart
 							ArrayList<Music> genieList = getGenieChart();
 							ArrayList<Music> mnetList = getMnetChart();
 							
+							/*
+							 * 실제적으로 TOP 100위를 정렬하기 전에 곡명을 일련의 처리를 한다.
+							 */
 							melonList = setTitle(melonList);
 							bugsList = setTitle(bugsList);
 							genieList = setTitle(genieList);
@@ -55,6 +58,9 @@ public class musicChart
 							sorting sort = new sorting(melonList, bugsList, genieList, mnetList);
 							ArrayList<Music> sortTop100List = sort.sortTop100();
 						
+							/*
+							 * Music 객체의 rank가 낮은 기준으로 sortTop100List를  정렬해주기 위한 처리.
+							 */
 							Collections.sort(sortTop100List, new Comparator<Music>() {
 					            public int compare(Music s1, Music s2) {
 					            	Integer s1Rank = Integer.parseInt(s1.getRank());
@@ -69,6 +75,9 @@ public class musicChart
 					            }
 					        });
 
+							/*
+							 * 출력 부분.
+							 */
 							for(Music m : sortTop100List)
 							{
 								print_all(m,0);
@@ -76,6 +85,9 @@ public class musicChart
 							System.out.println();
 							cnt = 0;
 							
+							/*
+							 * 1분 마다 실행.
+							 */
 							Thread.sleep((60*1000)*1);
 						}
 					}
@@ -92,6 +104,10 @@ public class musicChart
 			}).start();
 	}
 	
+	/**
+	 * 시간을 설정하는 메서드.
+	 * 차트를 가져올때 현재시간을 요구하는 경우가 있기 때문에.. 여기서 미리 설정해준다.
+	 */
 	public static void setTime()
 	{
 		TimeZone jst = TimeZone.getTimeZone ("JST");
@@ -126,6 +142,10 @@ public class musicChart
 		sec = cal.get(Calendar.SECOND)+ "";
 	}
 	
+	/**
+	 * 곡명이 예를들어.. 라비앙로즈 (La Vie en Rose) 이거를 그냥 '라비앙로즈'로 바꿔주는 작업.
+	 * 왜냐하면 멜론에는 라비앙로즈인데 벅스에는 라비앙로즈(~~)인 경우도 있어서..
+	 */
 	public static ArrayList<Music> setTitle(ArrayList<Music> musicList)
 	{
 		ArrayList<Music> mList = musicList;
@@ -143,9 +163,13 @@ public class musicChart
 		return mList;
 	}
 	
+	
 	public static ArrayList<Music> getMnetChart() throws IOException
 	{
 		ArrayList<Music> musicList = new ArrayList<Music>();
+		/*
+		 * Mnet 싸이트 헤더 설정 부분.
+		 */
 		Connection.Response MnetChartPage50 = Jsoup.connect("http://www.mnet.com/chart/top100")
                 .timeout(3000)
                 .header("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8")
@@ -160,6 +184,9 @@ public class musicChart
 		Document MnetDoc = MnetChartPage50.parse();
 		Elements Mnet50 = MnetDoc.select("tbody tr");
 		
+		/*
+		 * html 태그를 통해서 파싱해오는 부분.
+		 */
 		for (Element ele : Mnet50) 
 		{
 			String rank = ele.select("td div.MMLIRankNum_Box").text();
@@ -174,10 +201,16 @@ public class musicChart
 			musicList.add(music);
 		}
 		
+		/*
+		 * 위에는 50위 밖에 안나오기 때문에 51~100위를 파싱하려면 요청해야하는 페이지.
+		 */
 		String url = "http://www.mnet.com/chart/TOP100/";
 		url += curDate + hour;
 //		System.out.println("mnet`s pg2 : " + url);
 		
+		/*
+		 * 위의 url에다가 추가적으로 get으로 전송해야하는 데이터 정보.
+		 */
 		Map<String, String> data = new HashMap<String, String>();
 		data.put("pNum", "2");
 		
@@ -384,6 +417,9 @@ public class musicChart
 		return musicList;
 	}
 	
+	/*
+	 * 출력해주는 메서드
+	 */
 	public static void print_all(Music m, int swi)
 	{
 		switch (swi) {
