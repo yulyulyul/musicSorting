@@ -24,68 +24,72 @@ public class musicChart
 	public static String dateS;
 	public static String curDate;
 	public static String hour;
+	public static String min;
+	public static String sec;
+	
 	public static int cnt = 0;
+	public static boolean isGo = true;
 	
 	public static void main(String[] args)
 	{
-		try 
-		{
-			setTime();
-			
-			ArrayList<Music> melonList = getMelonChart();
-			ArrayList<Music> bugsList = getBugsChart();
-			ArrayList<Music> genieList = getGenieChart();
-			ArrayList<Music> mnetList = getMnetChart();
-			
-			melonList = setTitle(melonList);
-			bugsList = setTitle(bugsList);
-			genieList = setTitle(genieList);
-			mnetList = setTitle(mnetList);
-			
-//			for(Music m : melonList)
-//			{
-//				print_all(m,1);
-//			}
-//			for(Music m : bugsList)
-//			{
-//				print_all(m,1);
-//			}
-//			for(Music m : genieList)
-//			{
-//				print_all(m,1);
-//			}
-//			for(Music m : mnetList)
-//			{
-//				print_all(m,1);
-//			}
-			
-			sorting sort = new sorting(melonList, bugsList, genieList, mnetList);
-			ArrayList<Music> sortTop100List = sort.sortTop100();
-		
-			Collections.sort(sortTop100List, new Comparator<Music>() {
-	            public int compare(Music s1, Music s2) {
-	            	Integer s1Rank = Integer.parseInt(s1.getRank());
-	            	Integer s2Rank = Integer.parseInt(s2.getRank());
-	            	
-	                if (s1Rank < s2Rank) {
-	                    return -1;
-	                } else if (s1Rank > s2Rank) {
-	                    return 1;
-	                }
-	                return 0;
-	            }
-	        });
-
-			for(Music m : sortTop100List)
+			new Thread(new Runnable() 
 			{
-				print_all(m,0);
-			}
-			
-		}
-		catch (IOException e) 
-		{
-			e.printStackTrace();
-		}
+				public void run() 
+				{
+					try 
+					{
+						while(isGo)
+						{
+							setTime();
+							System.out.println(yearS + "년 " + monthS + "월 " + dateS +"일, " + hour + "시  " + min + "분 " + sec + "초 기준");
+							ArrayList<Music> melonList = getMelonChart();
+							ArrayList<Music> bugsList = getBugsChart();
+							ArrayList<Music> genieList = getGenieChart();
+							ArrayList<Music> mnetList = getMnetChart();
+							
+							melonList = setTitle(melonList);
+							bugsList = setTitle(bugsList);
+							genieList = setTitle(genieList);
+							mnetList = setTitle(mnetList);
+							
+							sorting sort = new sorting(melonList, bugsList, genieList, mnetList);
+							ArrayList<Music> sortTop100List = sort.sortTop100();
+						
+							Collections.sort(sortTop100List, new Comparator<Music>() {
+					            public int compare(Music s1, Music s2) {
+					            	Integer s1Rank = Integer.parseInt(s1.getRank());
+					            	Integer s2Rank = Integer.parseInt(s2.getRank());
+					            	
+					                if (s1Rank < s2Rank) {
+					                    return -1;
+					                } else if (s1Rank > s2Rank) {
+					                    return 1;
+					                }
+					                return 0;
+					            }
+					        });
+
+							for(Music m : sortTop100List)
+							{
+								print_all(m,0);
+							}
+							System.out.println();
+							cnt = 0;
+							
+							Thread.sleep((60*1000)*1);
+						}
+					}
+					catch (Exception e) 
+					{
+						e.printStackTrace();
+					}
+					finally
+					{
+						isGo = false;
+					}
+				}
+				
+			}).start();
 	}
 	
 	public static void setTime()
@@ -118,6 +122,8 @@ public class musicChart
 		curDate = yearS + monthS + dateS;
 		
 		hour = cal.get(Calendar.HOUR_OF_DAY) + "";
+		min = cal.get(Calendar.MINUTE)+ "";
+		sec = cal.get(Calendar.SECOND)+ "";
 	}
 	
 	public static ArrayList<Music> setTitle(ArrayList<Music> musicList)
@@ -385,7 +391,7 @@ public class musicChart
 			if(m.isSuit())
 			{
 				cnt+=1;
-				System.out.println(cnt + "	" + m.getTitle() +"	" + m.getArtist() + "	" + m.getRank());
+				System.out.println(cnt + "	" + m.getTitle() +"	" + m.getArtist());
 			}
 			break;
 
